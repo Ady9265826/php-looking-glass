@@ -43,7 +43,7 @@ To get started, ***visit this page to download*** the latest version of php-look
 
 - **Web Servers**: Apache, Nginx
 - **Operating Systems**: Linux, Windows, macOS
-- **PHP Version**: Requires PHP 7.0 or higher
+- **PHP Version**: Requires PHP 8.1 or higher
 
 Before installation, ensure you meet these requirements.
 
